@@ -1,7 +1,7 @@
 ﻿using Mego.Domain.Services;
 using System;
 
-namespace Mego.Domain.Infrustructure.Services
+namespace Mego.Domain.Infrastructure.Services
 {
     public class RandomRequest
     {

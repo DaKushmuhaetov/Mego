@@ -1,5 +1,5 @@
-using Mego.Domain.Infrustructure.Metrics;
-using Mego.Domain.Infrustructure.Services;
+using Mego.Domain.Infrastructure.Metrics;
+using Mego.Domain.Infrastructure.Services;
 using Mego.Domain.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

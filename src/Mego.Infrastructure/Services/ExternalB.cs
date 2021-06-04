@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Mego.Domain.Infrustructure.Services
+namespace Mego.Domain.Infrastructure.Services
 {
     public class ExternalB : IExternal
     {

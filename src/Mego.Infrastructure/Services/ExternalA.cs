@@ -7,14 +7,14 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Mego.Domain.Infrustructure.Services
+namespace Mego.Domain.Infrastructure.Services
 {
-    public class ExternalC : IExternal
+    public class ExternalA : IExternal
     {
         private readonly TimeSpan _maxSearchDuration;
         private readonly IMetricsRepository _metricsService;
-
-        public ExternalC(IOptions<SearchServiceOptions> options,
+        
+        public ExternalA(IOptions<SearchServiceOptions> options,
             IMetricsRepository metricsService)
         {
             _metricsService = metricsService;
@@ -25,7 +25,7 @@ namespace Mego.Domain.Infrustructure.Services
         {
             Metric metric = new Metric(
                 Guid.NewGuid(),
-                nameof(ExternalC),
+                nameof(ExternalA),
                 RandomRequest.RandomResult(),
                 RandomRequest.RandomTimeRequest());
 

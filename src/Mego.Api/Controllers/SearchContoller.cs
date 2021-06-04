@@ -1,5 +1,5 @@
 ﻿using Mego.Api.Views;
-using Mego.Domain.Infrustructure.Services;
+using Mego.Domain.Infrastructure.Services;
 using Mego.Domain.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

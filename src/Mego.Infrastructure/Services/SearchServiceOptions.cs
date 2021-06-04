@@ -1,4 +1,4 @@
-﻿namespace Mego.Domain.Infrustructure.Services
+﻿namespace Mego.Domain.Infrastructure.Services
 {
     public sealed class SearchServiceOptions
     {

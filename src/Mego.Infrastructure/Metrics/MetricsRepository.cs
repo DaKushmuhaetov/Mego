@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Mego.Domain.Infrustructure.Metrics
+namespace Mego.Domain.Infrastructure.Metrics
 {
     public sealed class MetricsRepository : IMetricsRepository
     {
