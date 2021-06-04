@@ -18,7 +18,7 @@ namespace Mego.Domain.Infrastructure.Services
             var random = new Random();
             var result = random.Next(0, 2);
 
-            return (Result) result;
+            return (Result)result;
         }
     }
 }

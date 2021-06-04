@@ -1,9 +1,6 @@
 ﻿using Mego.Domain.Services;
 using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,7 +10,7 @@ namespace Mego.Domain.Infrastructure.Services
     {
         private readonly TimeSpan _maxSearchDuration;
         private readonly IMetricsRepository _metricsService;
-        
+
         public ExternalA(IOptions<SearchServiceOptions> options,
             IMetricsRepository metricsService)
         {

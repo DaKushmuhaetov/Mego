@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Mego.Api.Views
+﻿namespace Mego.Api.Views
 {
     public class MetricsView
     {

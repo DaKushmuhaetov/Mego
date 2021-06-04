@@ -1,7 +1,6 @@
 ﻿using Mego.Api.Views;
 using Mego.Domain.Infrastructure.Services;
 using Mego.Domain.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -20,7 +19,7 @@ namespace Mego.Api.Controllers
         private readonly TimeSpan _maxSearchDuration;
         private readonly ILogger _logger;
 
-        public SearchContoller(IOptions<SearchServiceOptions> options, 
+        public SearchContoller(IOptions<SearchServiceOptions> options,
             ILogger<SearchContoller> logger)
         {
             _logger = logger;
@@ -48,7 +47,8 @@ namespace Mego.Api.Controllers
 
             Task.WaitAll(
                 // External service A
-                Task.Run(() => {
+                Task.Run(() =>
+                {
                     var searchInExternalA = Task.Run(() => externalA.Request(cancellationToken));
                     if (searchInExternalA.Wait(_maxSearchDuration))
                     {
@@ -62,7 +62,8 @@ namespace Mego.Api.Controllers
                     }
                 }),
                 // External service B
-                Task.Run(() => {
+                Task.Run(() =>
+                {
                     var searchInExternalB = Task.Run(() => externalB.Request(cancellationToken));
                     if (searchInExternalB.Wait(_maxSearchDuration))
                     {
@@ -76,7 +77,8 @@ namespace Mego.Api.Controllers
                     }
                 }),
                 // External service C
-                Task.Run(() => {
+                Task.Run(() =>
+                {
                     var task = Task.Run(async () =>
                     {
                         var externalCReuslt = await externalC.Request(cancellationToken);
@@ -127,7 +129,7 @@ namespace Mego.Api.Controllers
                     Name = o.Key.Name,
                     Count = o.Count()
                 });
-                
+
 
             return Ok(metricsGroupped);
         }
