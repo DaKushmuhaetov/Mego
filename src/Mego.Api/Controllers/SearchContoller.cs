@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -31,7 +32,7 @@ namespace Mego.Api.Controllers
         /// </summary>
         /// <response code="200">Successfully</response>
         [HttpGet("/search")]
-        [ProducesResponseType(typeof(IEnumerable<SearchResultView>), 200)]
+        [ProducesResponseType(typeof(ConcurrentBag<SearchResultView>), 200)]
         public async Task<IActionResult> Search(
             CancellationToken cancellationToken,
             [FromQuery] string query,
@@ -40,67 +41,29 @@ namespace Mego.Api.Controllers
             [FromServices] ExternalC externalC,
             [FromServices] ExternalD externalD)
         {
-
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
 
-            List<SearchResultView> searchResults = new List<SearchResultView>();
+            ConcurrentBag<SearchResultView> searchResults = new ConcurrentBag<SearchResultView>();
 
             await Task.WhenAll(
-                // External service A
-                Task.Run(() =>
-                {
-                    var searchInExternalA = Task.Run(() => externalA.Request(cancellationToken));
-                    if (searchInExternalA.Wait(_maxSearchDuration))
-                    {
-                        var result = searchInExternalA.Result;
-
-                        searchResults.Add(new SearchResultView
-                        {
-                            ServiceName = "ExternalA",
-                            Result = result
-                        });
-                    }
+                Task.Run(async () => {
+                    var taskA = Execute(externalA, nameof(externalA), searchResults, cancellationToken);
+                    if (await Task.WhenAny(taskA, Task.Delay(_maxSearchDuration)) == taskA) { }
                 }),
-                // External service B
-                Task.Run(() =>
-                {
-                    var searchInExternalB = Task.Run(() => externalB.Request(cancellationToken));
-                    if (searchInExternalB.Wait(_maxSearchDuration))
-                    {
-                        var result = searchInExternalB.Result;
-
-                        searchResults.Add(new SearchResultView
-                        {
-                            ServiceName = "ExternalB",
-                            Result = result
-                        });
-                    }
+                Task.Run(async () => {
+                    var taskB = Execute(externalB, nameof(externalB), searchResults, cancellationToken);
+                    if (await Task.WhenAny(taskB, Task.Delay(_maxSearchDuration)) == taskB) { }
                 }),
-                // External service C
-                Task.Run(() =>
-                {
-                    var task = Task.Run(async () =>
-                    {
-                        var externalCReuslt = await externalC.Request(cancellationToken);
-                        searchResults.Add(new SearchResultView
+                Task.Run(async () => {
+                    var taskC = Execute(externalC, nameof(externalC), searchResults, cancellationToken);
+                    var taskD = taskC.ContinueWith(async result => {
+                        if (await result == Result.OK)
                         {
-                            ServiceName = "ExternalC",
-                            Result = externalCReuslt
-                        });
-
-                        if (externalCReuslt == Result.OK)
-                        {
-                            var externalDReuslt = await externalD.Request(cancellationToken);
-                            searchResults.Add(new SearchResultView
-                            {
-                                ServiceName = "ExternalD",
-                                Result = externalDReuslt
-                            });
+                            await Execute(externalD, nameof(externalD), searchResults, cancellationToken);
                         }
                     });
-
-                    task.Wait(_maxSearchDuration);
+                    if (await Task.WhenAny(taskD, Task.Delay(_maxSearchDuration)) == taskD) { }
                 })
             );
 
@@ -143,6 +106,20 @@ namespace Mego.Api.Controllers
 
 
             return Ok(metricsGroupped);
+        }
+
+        private static async Task<Result> Execute(IExternal externalService, string serviceName,
+            ConcurrentBag<SearchResultView> searchResults, CancellationToken cancellationToken)
+        {
+            var result = await externalService.Request(cancellationToken);
+
+            searchResults.Add(new SearchResultView
+            {
+                ServiceName = serviceName,
+                Result = result
+            });
+
+            return result;
         }
     }
 }
