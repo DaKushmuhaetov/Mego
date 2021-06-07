@@ -1,5 +1,4 @@
 ﻿using Mego.Domain.Services;
-using Microsoft.Extensions.Options;
 using System;
 using System.Threading;
 using System.Threading.Tasks;

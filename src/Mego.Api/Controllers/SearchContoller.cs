@@ -139,7 +139,7 @@ namespace Mego.Api.Controllers
                         DurationInSeconds = o.TimeRequest.TotalSeconds
                     }),
                     DurationInSeconds = o.Key.TotalSeconds
-                }) ;
+                });
 
 
             return Ok(metricsGroupped);
