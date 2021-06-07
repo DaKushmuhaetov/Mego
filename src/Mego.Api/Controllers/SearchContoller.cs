@@ -40,12 +40,13 @@ namespace Mego.Api.Controllers
             [FromServices] ExternalC externalC,
             [FromServices] ExternalD externalD)
         {
+
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
 
             List<SearchResultView> searchResults = new List<SearchResultView>();
 
-            Task.WaitAll(
+            await Task.WhenAll(
                 // External service A
                 Task.Run(() =>
                 {
@@ -88,12 +89,15 @@ namespace Mego.Api.Controllers
                             Result = externalCReuslt
                         });
 
-                        var externalDReuslt = await externalD.Request(cancellationToken);
-                        searchResults.Add(new SearchResultView
+                        if (externalCReuslt == Result.OK)
                         {
-                            ServiceName = "ExternalD",
-                            Result = externalDReuslt
-                        });
+                            var externalDReuslt = await externalD.Request(cancellationToken);
+                            searchResults.Add(new SearchResultView
+                            {
+                                ServiceName = "ExternalD",
+                                Result = externalDReuslt
+                            });
+                        }
                     });
 
                     task.Wait(_maxSearchDuration);
@@ -123,12 +127,19 @@ namespace Mego.Api.Controllers
             var metrics = await metricsRepository.GetAll(cancellationToken);
 
             var metricsGroupped = metrics
-                .GroupBy(o => new { ts, o.Name })
+                .GroupBy(o => new { o.TimeRequest.TotalSeconds, o.Name })
                 .Select(o => new MetricsView
                 {
                     Name = o.Key.Name,
-                    Count = o.Count()
-                });
+                    Count = o.Count(),
+                    Metrics = o.Select(o => new MetricView
+                    {
+                        Result = o.Result,
+                        Id = o.Id,
+                        DurationInSeconds = o.TimeRequest.TotalSeconds
+                    }),
+                    DurationInSeconds = o.Key.TotalSeconds
+                }) ;
 
 
             return Ok(metricsGroupped);

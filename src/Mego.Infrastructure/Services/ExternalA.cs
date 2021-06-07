@@ -8,14 +8,11 @@ namespace Mego.Domain.Infrastructure.Services
 {
     public class ExternalA : IExternal
     {
-        private readonly TimeSpan _maxSearchDuration;
         private readonly IMetricsRepository _metricsService;
 
-        public ExternalA(IOptions<SearchServiceOptions> options,
-            IMetricsRepository metricsService)
+        public ExternalA(IMetricsRepository metricsService)
         {
             _metricsService = metricsService;
-            _maxSearchDuration = TimeSpan.FromSeconds(options.Value.MaxSearchDurationInSeconds);
         }
 
         public async Task<Result> Request(CancellationToken cancellationToken)
@@ -26,10 +23,9 @@ namespace Mego.Domain.Infrastructure.Services
                 RandomRequest.RandomResult(),
                 RandomRequest.RandomTimeRequest());
 
-            if (metric.TimeRequest < _maxSearchDuration)
-                await _metricsService.Save(metric);
-
             await Task.Delay(metric.TimeRequest, cancellationToken);
+
+            await _metricsService.Save(metric);
 
             return metric.Result;
         }
